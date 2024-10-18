@@ -1,56 +1,30 @@
-import './App.css'
-import ContactForm from "./components/ContactForm/ContactForm.jsx";
-import SearchBox from "./components/SearchBox/SearchBox.jsx";
+import "./App.css";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import {fetchContacts} from "./redux/contactsOps.js";
 import ContactList from "./components/ContactList/ContactList.jsx";
-import contactsItems from "./data/contacts.json";
-import { useState, useEffect } from 'react'
-import { nanoid } from 'nanoid';
+import SearchBox from "./components/SearchBox/SearchBox.jsx";
+import ContactForm from "./components/ContactForm/ContactForm.jsx";
+
 
 
 function App() {
-    const localStorageContactsKey = 'contactsStorageItems'
-    const getDefaultContacts = () => {
-		const values = localStorage.getItem(localStorageContactsKey);
-		if (values !== null) {
-			return JSON.parse(values);
-		}
-		return contactsItems;
-	};
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.contacts.loading);
+  const error = useSelector((state) => state.contacts.error);
 
-    const [contacts, setContacts] = useState(getDefaultContacts())
-    const [filter, setFilter] = useState('');
-
-    const handleSubmitContact = (values) => {
-        const newContact = { id: nanoid(), ...values };
-        setContacts(contacts => [...contacts, newContact])
-    };
-
-    const deleteContact = (ContactId) => {
-        setContacts(contacts.filter(contact => contact.id !== ContactId))
-    };
-    const handleFilterChange = (event) => {
-        setFilter(event.target.value);
-    };
-    const getFilteredContacts = () => {
-        if (filter === '') {
-            return contacts;
-        }
-        return contacts.filter(contact =>
-            contact.name.toLowerCase().includes(filter.toLowerCase())
-        );
-    };
-
-    useEffect(() => {
-		localStorage.setItem(localStorageContactsKey, JSON.stringify(contacts));
-	}, [contacts]);
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
       <div>
           <h1>Phonebook</h1>
-          <ContactForm saveContact={handleSubmitContact}/>
-          <SearchBox  filter={filter} handleFilterChange={handleFilterChange}/>
+          <ContactForm />
+          <SearchBox />
           <br/>
-          <ContactList contacts={getFilteredContacts()} deleteContact={deleteContact}/>
+           {loading && !error && <b>Request in progress...</b>}
+          <ContactList/>
       </div>
   )
 }

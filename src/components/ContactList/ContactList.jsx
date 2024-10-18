@@ -1,12 +1,14 @@
 import Contact from "../Contact/Contact.jsx";
+import { useSelector } from "react-redux";
+import {selectFilteredContact} from "../../redux/contactsSlice.js";
 
-const ContactList = ({contacts, deleteContact}) => {
+const ContactList = () => {
+  const filterContacts = useSelector(selectFilteredContact);
   return (
-      contacts.map((item) => <Contact key={item.id}
+      filterContacts.map((item) => <Contact key={item.id}
                                       id={item.id}
                                       name={item.name}
-                                      number={item.number}
-                                      deleteContact={deleteContact} />)
+                                      number={item.number}/>)
   );
 };
 
